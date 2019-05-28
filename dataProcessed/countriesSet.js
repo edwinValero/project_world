@@ -1,4 +1,4 @@
-const db = require('../connection.js');
+const db = require('../data_base/connection.js');
 const {promisify} = require('util');
 const csv = require('csv-parser');  
 const fs = require('fs');

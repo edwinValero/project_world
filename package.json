@@ -26,10 +26,10 @@
   },
   "homepage": "https://github.com/edwinValero/project_wolrd#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "csv": "^5.1.1",
     "csv-parser": "^2.3.0",
     "express": "^4.17.1",
-    "mysql": "^2.17.1",
-    "plain-text-data-to-json": "^1.0.2"
+    "mysql": "^2.17.1"
   }
 }
