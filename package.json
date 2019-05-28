@@ -1,0 +1,35 @@
+{
+  "name": "project_wolrd",
+  "version": "1.0.0",
+  "description": "projecto final de curso node.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edwinValero/project_wolrd.git"
+  },
+  "keywords": [
+    "node",
+    "world",
+    "countries",
+    "regions",
+    "cities"
+  ],
+  "author": "edwin.valero@globant.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edwinValero/project_wolrd/issues"
+  },
+  "homepage": "https://github.com/edwinValero/project_wolrd#readme",
+  "dependencies": {
+    "csv": "^5.1.1",
+    "csv-parser": "^2.3.0",
+    "express": "^4.17.1",
+    "mysql": "^2.17.1",
+    "plain-text-data-to-json": "^1.0.2"
+  }
+}
