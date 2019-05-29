@@ -103,7 +103,7 @@ async function updateRegion(country, code, name){
         }catch(err){
             db.end();
             console.log('Error in createRegion the database layer: ', err);
-            return  'No se pudo actualizar.';
+            return err;
         }
     }
     return ERROR_CONNECTION;

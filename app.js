@@ -12,7 +12,7 @@ function logger(req, res, next){
     ===  LOG  ===
     ${new Date()}
     ${req.method}
-    ${req.path}
+    ${req.protocol}://${req.hostname}${req.path}
     Queries: ${JSON.stringify(req.query)}
     Body: ${JSON.stringify(req.body)}
     Json: ${JSON.stringify(req.body)}
