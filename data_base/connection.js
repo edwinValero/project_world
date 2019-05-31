@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const logger = require('../services/logger');
 
 let db = async ()=>{
     try{
@@ -9,7 +10,7 @@ let db = async ()=>{
             database:'world'
         });
     }catch(err){
-        console.log('Problema para conectar con la base de datos: ', err);
+        logger.error(' Problem to connect to the database: ', err);
     }     
 };
 

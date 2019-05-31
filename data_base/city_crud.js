@@ -1,83 +1,141 @@
-const db = require('./connection.js');
+const connection = require('./connection.js');
 const {promisify} = require('util');
+const logger = require('../services/logger');
 
-async function getCity(code, country, region){
+const cts = require('./constants.js');
+
+function getFilters(city,region,country){
+    let filters = [];
+    if(city){
+        filters.push(`c.code = '${city}'`);
+    }
+    if(region){
+        filters.push(`c.region = '${region}'` );
+    }
+    if(country){
+        filters.push(`c.country = '${country}'`);
+    }
+    return ' where '+filters.join(' and ')
+
+}
+
+async function consultCities(city,region,country){
+    let db = await connection();
+    //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
     try{
         db.query = promisify(db.query);
-       
-        let qr = `select * country from proyect_world.cities c where c.code =${code} limit 1`;
-        let result = await db.query(qr);
-        return result[0];
-    }catch(err){
-        throw new Error('Error data base layer: ', err);
-    }   
-}
-
-async function mostPopulated(){
-    db.query = promisify(db.query);
-    let qr = 'select c.Name, c.Population, a.Name country from world.city c, world.country a where a.Code = c.CountryCode ORDER BY c.Population desc limit 1';
-    let result = await db.query(qr);
-    console.log(`La ciudad del mundo más poblada es -${result[0].Name}- ubicada en -${result[0].country}- con una población de ${result[0].Population}.`);
-}
-
-async function mostPopulatedColombia(){
-    db.query = promisify(db.query);
-    let qr = `select c.Name, c.Population from world.city c where 'COL'= c.CountryCode ORDER BY c.Population desc limit 1`;
-    let result = await db.query(qr);
-    console.log(`La ciudad de Colombia más poblada es -${result[0].Name}- con una población de ${result[0].Population}.`);
-}
-
-function orderResults(result, resultL){
-    return result.reduce((acum, value)=>{
-        let country = acum.findIndex(cts => cts.Name === value.Name);
-        if(country == -1){
-            country = { 
-                Name: value.Name, 
-                cities:[{Name: value.city, Population: value.populationCity}], 
-                language: resultL.reduce((acum, val)=>{
-                    if(value.Code ===  val.Code){
-                        acum.push(val.Language);
-                    }
-                    return acum;
-                },[]),
-                Population: value.Population
-            };
-            acum.push(country);
-        }else{
-            acum[country].cities.push({city: value.city, population: value.populationCity});
-        }
-        return acum;
-    },[]);
-}
-
-async function fourCountries(){
-    try{
-        db.query = promisify(db.query);
-        let qr = `select co.Code ,co.Name, c.Name city, c.Population populationCity, co.Population
-        from world.city c,  world.country co
-        where co.code in  ${CITIES_SEARCH}
-        and c.CountryCode = co.Code`;
-
-        let qrLan = `select co.Code, cl.Language 
-        from world.country co, world.countrylanguage cl
-        where co.code in ${CITIES_SEARCH}
-        and cl.CountryCode = co.Code
-        and cl.IsOfficial = 'T'`;
-
-        let result = await db.query(qr);        
-        let resultL =  await db.query(qrLan);        
-        let countries = orderResults(result, resultL);
-        print(countries);
+        let qr = `select * from proyect_world.cities c`;
+        
+        let filter = getFilters(city,region,country);
+        if(filter === ' where ') throw new Error( cts.ERROR_NO_DATA); 
+        
+        let result = await db.query(qr+filter);       
         db.end();
+        return result;
     }catch(err){
-        console.log('Error: ----------------', err);
-        db.end();   
+        db.end();
+        logger.error('Error in consultCities the database layer: ', err);
+        throw err;   
     }
 }
 
-async function run(){
-    await mostPopulated();
-    await mostPopulatedColombia();
-    await fourCountries();
-  }
-run();
+async function createCity(data){
+    let db = await connection();
+    if(db.state != 'disconnected'){
+        try{
+            let { country, region, city} = data;
+            let qr = `INSERT INTO  proyect_world.cities SET ? `;
+            if(country && region && city){
+                db.query = promisify(db.query);
+                let result = await db.query(qr,data);
+                db.end();
+                data.result = result;
+                return data;
+            }else{
+                db.end();
+                data.error = cts.ERROR_NO_DATA;
+                return data;
+            }
+            
+        }catch(err){
+            db.end();
+            logger.error('Error in createCity the database layer: ', err);
+            data.error = err;
+            return data;
+        }
+    }
+    return cts.ERROR_CONNECTION;
+
+}
+
+async function deleteCity(city, region, country){
+    let db = await connection();
+    if(db.state != 'disconnected'){
+        try{
+            if(city || region || country ){
+                db.query = promisify(db.query);
+                let qr =`DELETE FROM proyect_world.regions `;
+                let filter =getFilters(city,region,country);
+                if(filter != ' where '){
+                    result = await db.query(qr+filter);                
+                }else{
+                    result = {
+                        error:cts.ERROR_NO_DATA,
+                        city: city,
+                        region:region,
+                        country:country
+                    };
+                }
+                db.end();
+                logger.info('deleted ' + result.affectedRows + ' rows');
+                return result;
+            }else{
+                db.end();
+                return cts.ERROR_NO_DATA;
+            }
+        }catch(err){
+            db.end();
+            logger.error('Error in  deleteCity the database layer: ', err);
+            return err;
+        }
+    }
+    return cts.ERROR_CONNECTION;
+}
+
+async function updateCity(city, data){
+    let db = await connection();
+    if(db.state != 'disconnected'){
+        try{        
+            if(country && code && name){
+                //title = :title", { title: "Hello MySQL" }
+                let qr = `UPDATE proyect_world.regions SET 
+                name = :name , latitude = :latitude, longitude = :longitude,
+                population = :population, country = :country, region = :region
+                Where code = '${city}'`;
+                db.query = promisify(db.query);
+                let results = await db.query(qr,data);
+                logger.info('changed ' + results.changedRows + ' rows');
+                db.end();
+                return results;
+            }else{
+                db.end();
+                return cts.ERROR_NO_DATA;
+            }
+            
+        }catch(err){
+            db.end();
+            logger.error('Error in updateCity the database layer: ', err);
+            return err;
+        }
+    }
+    return cts.ERROR_CONNECTION;
+}
+
+module.exports= {
+    consultCities: consultCities,
+    createCity: createCity,
+    deleteCity: deleteCity,
+    updateCity: updateCity,
+    errorDB : cts.ERROR_CONNECTION,
+    errorData: cts.ERROR_NO_DATA
+}

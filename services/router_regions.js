@@ -1,77 +1,86 @@
 const express = require("express");
 const routerRegions = express.Router();
 const regionsCrud = require('../data_base/region_crud.js');
+const ct = require('../data_base/constants');
+const logger = require('./logger');
 
 
-routerRegions.get("/", async (req, res) => { 
-    let regions = await regionsCrud.consultRegions();
-    responseGet(regions, res);
-    let response = {
-        result: regions,
-        links:{
-            getCountryRegions:'/regions/:country',
-            getCountryRegions:'/regions/:country/:code',
-            postRegions:`/regions/:country`,
+routerRegions.get("/", consultRegionsGet); 
+routerRegions.get("/:country", consultRegionsGet);
+routerRegions.get("/:country/:region",consultRegionsGet);
 
-        }
-    }
-    res.send(response);
- }); 
-routerRegions.get("/:country", async (req, res) => {
-    let regions = await regionsCrud.consultRegions('',req.params.country);
-    responseGet(regions, res);
-    res.send(regions);
-});
-routerRegions.get("/:country/:code", async (req, res) => {
-    let regions = await regionsCrud.consultRegions(req.params.code,req.params.country);
-    responseGet(regions, res);
-    res.send(regions);
-});
+async function consultRegionsGet(req, res){
+    let {country, region} = req.params;
+    if(!country) country = req.query.country; 
+    if(!region) region = req.query.region;
+    logger.info(country+region);
+    try{
+        let regions = await regionsCrud.consultRegions(region, country);
+        let response = {
+            result: regions,
+            links: links(req,regions)
+        };
+        res.send(response);
+    }catch(err){
+        logger.info(err);
+        res.status(500).send({error: err.message});
+    }   
+}
 
 routerRegions.post("/:country", async (req, res) => {
-    let result = await regionsCrud.createRegion(req.body, req.params.country);
-    responseErrorPost(result, res);
-    res.status(201).send(result);
+    let { region, name} = req.body;
+    if(!req.params.country || !region || !name) return  res.status(400).send(ct.ERROR_NO_DATA);
+    try{
+        let result = await regionsCrud.createRegion(req.body, req.params.country);
+        responseErrorPost(result, res);
+        let response = {
+            result: result,
+            links: links(req,result)
+        }
+        res.status(201).send(response);
+    }catch(err){
+        res.status(500).send({error: err});
+    }
+    
 });
 
 routerRegions.delete("/:country/:region", async (req, res) => {
-    let result = await regionsCrud.deleteRegion(req.params.country, req.params.region);
-    responseErrorDelete(result, res);
-    res.send(result);
+    if(!req.params.country || ! req.params.region) return  res.status(400).send(ct.ERROR_NO_DATA);
+    regionsCrud.deleteRegion(req.params.country, req.params.region).then((result)=>{
+        let response = {    
+            result: result,
+            links: links(req,result)
+        }
+        res.send(response);
+    },(err)=>{
+        res.status(500).send({error: err.message});
+    });   
 });
 
 routerRegions.put("/:country/:region", async (req, res) => {
-    let finded = await regionsCrud.consultRegions(req.params.region,req.params.country);
-    let result;
-    if(finded.length){
-        result = await regionsCrud.updateRegion(req.params.country, req.params.region, req.body.name);
-        responseErrorDelete(result);
-    }else{
-        result = await regionsCrud.createRegion({code: req.params.region, name: req.body.name }, req.params.country);
-        responseErrorPost(result);
+
+    if(!req.params.country || !req.params.region || !req.body.name) return  res.status(400).send(ct.ERROR_NO_DATA);
+    try{
+        let result = await regionsCrud.updateRegion(req.params.country, req.params.region, req.body.name);
+        let response = {
+            result: result,
+            links: links(req,result)
+        }
+        res.send(response);
+    }catch(err){
+        res.status(500).send({error: err});
     }
-    res.send(result);
 });
 
-function responseGet(regions, res){
-    if(regions.errno || regions === regionsCrud.errorDB){
-        res.status(500).send(regions);
+function links(req,result){
+    // getThisRegion:`${req.protocol}://${req.hostname}/regions/${result.country || finded[0].country}/${result.region || finded[0].code}`,
+    return {
+        getAllRegions: `${req.protocol}://${req.hostname}/regions`,
+        getCountryRegions:`${req.protocol}://${req.hostname}/regions/:country`,
+        postRegions:`${req.protocol}://${req.hostname}/regions/:country (body:{region,name})`,
+        putRegions:`${req.protocol}://${req.hostname}/regions/:country/:region (body:{name})`,
+        deleteRegions:`${req.protocol}://${req.hostname}/regions/:country/:region`
     }
 }
 
-function responseErrorPost(regions, res){
-    if(regions.error.errno || regions === regionsCrud.errorDB){
-        res.status(500).send(regions);
-    }else if(regions.error === regionsCrud.errorData){
-        res.status(400).send(regions);
-    }
-}
-
-function responseErrorDelete(result, res){
-    if(result.errno || result === regionsCrud.errorDB){
-        res.status(500).send(result);
-    }else if(result.error === regionsCrud.errorData){
-        res.status(400).send(result);
-    }
-}
 module.exports = routerRegions;
