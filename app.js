@@ -11,9 +11,9 @@ app.use(loggerMiddleware);
 
 app.use("/", myRouter);
 
-app.use(( req, res, next)=>{
-    res.status(405).send('The action is not allowed.');
-});
+// app.use(( req, res, next)=>{
+//     res.status(405).send('The action is not allowed.');
+// });
 
 app.use((err, req, res, next) => {
     logger.error("Error....", err.message);

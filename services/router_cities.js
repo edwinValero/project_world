@@ -1,76 +1,77 @@
 const express = require("express");
 const routerCities = express.Router();
 const citiesCrud = require('../data_base/city_crud.js');
-
-async function consultCities(req, res){
-    let {country, region} = req.body;
-    let cities= await citiesCrud.consultCities(req.params.city, region, country);
-    responseGet(cities, res);
-    let response = {
-        result: cities,
-        links: getLinks(req)
-    };
-    res.send(response);
-}
-
-async function  deleteCities(req, res){
-    let {country, region} = req.body;
-    let city = req.params.city;
-    let cities= await citiesCrud.deleteCity(city,region,country);
-    responseErrorDelete(cities, res);
-    let response = {
-        result: cities,
-        links: getLinks(req)
-    };
-    res.send(response);
-   
-}
+const ct = require('../data_base/constants');
 
 routerCities.get("/:city", consultCities);
 routerCities.get("/",consultCities);
 routerCities.delete("/", deleteCities);
 routerCities.delete("/:city", deleteCities);
+routerCities.post("/:city",postCities );
+routerCities.put("/:city", putCities);
 
-routerCities.post("/:city", async (req, res) => {
-    req.body.city= req.params.city;
-    let result = await citiesCrud.createCity(req.body);
-    responseErrorPost(result, res);
-    let response = {
-        result: result,
-        links: getLinks(req)
-    }
-    res.status(201).send(response);
-});
+async function consultCities(req, res){
+    let {country, region} = req.body;   
+    if(!country && !region && !req.params.city) return  res.status(400).send(ct.ERROR_NO_DATA);
 
-routerCities.put("/:city", async (req, res) => {
-    let result = await citiesCrud.updateRegion(req.params.country, req.params.region, req.body.name);
-    let response = {
-        result: result,
-        links: getLinks(req)
-    }
-    res.send(response);
-});
-
-function responseGet(cities, res){
-    if(cities.errno || cities === citiesCrud.errorDB){
-        res.status(500).send(cities);
-    }
+    citiesCrud.consultCities(req.params.city, region, country).then((cities)=>{
+        let response = {
+            result: cities,
+            links: getLinks(req)
+        };
+        res.send(response);
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    });
+    
 }
 
-function responseErrorPost(result, res){
-    if((result.error && result.error.errno) || result === citiesCrud.errorDB){
-        res.status(500).send(result);
-    }else if(result.error === citiesCrud.errorData){
-        res.status(400).send(result);
-    }
+async function  deleteCities(req, res){
+    let {country, region} = req.body;
+    let city = req.params.city;
+    if(!country && !region && !req.params.city) return  res.status(400).send(ct.ERROR_NO_DATA);
+
+    citiesCrud.deleteCity(city,region,country).then((cities)=>{
+        let response = {
+            result: cities,
+            links: getLinks(req)
+        };
+        res.send(response);
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    });    
+   
 }
 
-function responseErrorDelete(result, res){
-    if(result.errno || result === citiesCrud.errorDB){
-        res.status(500).send(result);
-    }else if(result.error === citiesCrud.errorData){
-        res.status(400).send(result);
-    }
+async function postCities(req, res) {
+    req.body.code= req.params.city;
+    let { country, region, code} = req.body;
+    if(!country || !region || !code) return  res.status(400).send(ct.ERROR_NO_DATA);
+    citiesCrud.createCity(req.body).then((result)=>{
+        let response = {
+            result: result,
+            links: getLinks(req)
+        }
+        res.status(201).send(response);
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    });    
+}
+
+async function putCities(req, res){
+    req.body.code= req.params.city;
+    let { country, region, code} = req.body;
+    if(!country || !region || !code) return  res.status(400).send(ct.ERROR_NO_DATA);
+
+    citiesCrud.updateCity(req.body).then((result)=>{
+        let response = {
+            result: result,
+            links: getLinks(req)
+        }
+        res.send(response);
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    }); 
 }
 
 function getLinks(req){

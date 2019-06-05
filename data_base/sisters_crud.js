@@ -3,62 +3,57 @@ const {promisify} = require('util');
 const logger = require('../services/logger');
 const ct = require('./constants');
 const cityCrud = require('./city_crud');
-
-function consultRegions(code, country){
+//todo pendiente
+function consultSisters(code1, code2){
     return connection().then((db)=>{
         db.query = promisify(db.query);
-        let qr = `select * from world_project_db.regions c`;
-        if(code && country){
-            qr += ` where  c.code = '${code}' and c.country = '${country}'`;
-        }else if(code ){
-            qr +=` where c.code = '${code}' `;
-        }else if(country ){
-            qr +=` where c.country = '${country}' `;
+        let qr = `select * from world_project_db.sisters c`;
+         if(code ){
+            qr +=` where c.city1 = '${code1}' or c.city2 = '${code2}' `;
         }
         let result = db.query(qr);
         return result;
     }).catch((err)=>{
-        logger.error('Error in consultRegions the database layer: ', err);
+        logger.error('Error in consultSisters the database layer: ', err);
         throw new Error(err);
     });     
 }
 
-async function createRegion(data, country){
-    let { region, name} = data;
-    if(!country || !region || !name)  throw new Error( ct.ERROR_NO_DATA);
+async function createSister(code1, code2){
+    if(!country || !sister || !name)  throw new Error( ct.ERROR_NO_DATA);
     return connection().then((db)=>{
-        let qr = `INSERT INTO  world_project_db.regions SET ? `;
-        let post = {country: country, code:region, name: name};
+        let qr = `INSERT INTO  world_project_db.sisters SET ? `;
+        let post = {country: country, code:sister, name: name};
         db.query = promisify(db.query);
         return db.query(qr,post);
     }).catch((err)=>{
-        logger.error('Error in createRegion the database layer: ', err);
+        logger.error('Error in createSister the database layer: ', err);
         throw  new Error(err);
     });    
 }
 
-function deleteRegion(country, code){
+function deleteSister(country, code){
     return connection().then((db)=>{
-        let qr =`DELETE FROM world_project_db.regions where country = '${country}' and code = '${code}'`;
+        let qr =`DELETE FROM world_project_db.sisters where country = '${country}' and code = '${code}'`;
         db.query = promisify(db.query);
         let result = db.query(qr);
         return result;        
     }).catch((err)=>{
-        logger.error('Error in  deleteRegion the database layer: ', err);
+        logger.error('Error in  deleteSister the database layer: ', err);
         throw new Error(err); 
     });
 }
 
-async function updateRegion(country, code, name){
+async function updateSister(country, code, name){
     if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    return consultRegions(code, country).then((regions)=>{
-        if(regions.length){
+    return consultSisters(code, country).then((sisters)=>{
+        if(sisters.length){
             return update(country, code, name);
         }else{
-            return createRegion({region: code, name: name }, country);
+            return createSister({sister: code, name: name }, country);
         }
     }).catch((err)=>{
-        logger.error('Error in updateRegion the database layer: ', err);
+        logger.error('Error in updateSister the database layer: ', err);
         throw new Error(err);
     });
 }
@@ -66,7 +61,7 @@ async function updateRegion(country, code, name){
 async function update(country, code, name){
     if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
     connection().then((db)=>{
-        let qr = `UPDATE world_project_db.regions SET name = '${name}' 
+        let qr = `UPDATE world_project_db.sisters SET name = '${name}' 
         Where country= '${country}' and code = '${code}'`;
         db.query = promisify(db.query);
         let results = db.query(qr);
@@ -88,18 +83,18 @@ async function haveCities(country, code){
 
 
 
-async function deleteRegion2(country, code){
+async function deleteSister2(country, code){
     if(!country || !code ) throw new Error(ct.ERROR_NO_DATA);
     //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
     try{
-        let exist= await consultRegions(code, country);
+        let exist= await consultSisters(code, country);
         if(exist.length === 0){
-            throw new Error('The region does not exist!'); 
+            throw new Error('The sister does not exist!'); 
         }
         if( await haveCities(country, code)){
-            throw new Error('The selected region has associated cities and can not be deleted!'); 
+            throw new Error('The selected sister has associated cities and can not be deleted!'); 
         }
-        let qr =`DELETE FROM world_project_db.regions where country = '${country}' and code = '${code}'`;
+        let qr =`DELETE FROM world_project_db.sisters where country = '${country}' and code = '${code}'`;
         let db = await connection();
         db.query = promisify(db.query);
         let result = await db.query(qr);
@@ -107,24 +102,24 @@ async function deleteRegion2(country, code){
         logger.info('deleted ' + result.affectedRows + ' rows');
         return result;        
     }catch(err){
-        logger.error('Error in  deleteRegion the database layer: ', err);
+        logger.error('Error in  deleteSister the database layer: ', err);
         throw new Error(err); 
     }
 }
 
 
 
-async function updateRegion2(country, code, name){
+async function updateSister2(country, code, name){
     if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
     try{
-        let region = await consultRegions(country, code);
-        if(region.length){
+        let sister = await consultSisters(country, code);
+        if(sister.length){
             return await update2(country, code, name);
         }else{
-            return await createRegion({region: code, name: name }, req.params.country);
+            return await createSister({sister: code, name: name }, req.params.country);
         }
     }catch(err){
-        logger.error('Error in updateRegion the database layer: ', err);
+        logger.error('Error in updateSister the database layer: ', err);
         throw err;
     }
 }
@@ -134,7 +129,7 @@ async function update2(country, code, name){
     let db = await connection();
     //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
     try{        
-        let qr = `UPDATE world_project_db.regions SET name = '${name}' 
+        let qr = `UPDATE world_project_db.sisters SET name = '${name}' 
         Where country= '${country}' and code = '${code}'`;
         db.query = promisify(db.query);
         let results = await db.query(qr);
@@ -149,8 +144,8 @@ async function update2(country, code, name){
 }
 
 module.exports= {
-    consultRegions: consultRegions,
-    createRegion: createRegion,
-    deleteRegion: deleteRegion,
-    updateRegion: updateRegion
+    consultSisters: consultSisters,
+    createSister: createSister,
+    deleteSister: deleteSister,
+    updateSister: updateSister
 }

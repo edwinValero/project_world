@@ -8,43 +8,45 @@ const logger = require('./logger');
 routerRegions.get("/", consultRegionsGet); 
 routerRegions.get("/:country", consultRegionsGet);
 routerRegions.get("/:country/:region",consultRegionsGet);
+routerRegions.post("/:country", postRegions);
+routerRegions.delete("/:country/:region",deleteRegions );
+routerRegions.put("/:country/:region",putRegions);
+
 
 async function consultRegionsGet(req, res){
     let {country, region} = req.params;
     if(!country) country = req.query.country; 
     if(!region) region = req.query.region;
-    logger.info(country+region);
-    try{
-        let regions = await regionsCrud.consultRegions(region, country);
+    let result = regionsCrud.consultRegions(region, country);
+    result.then((regions)=>{
         let response = {
             result: regions,
             links: links(req,regions)
         };
         res.send(response);
-    }catch(err){
+    }).catch((err)=>{
         logger.info(err);
         res.status(500).send({error: err.message});
-    }   
+    });  
 }
 
-routerRegions.post("/:country", async (req, res) => {
+
+async function postRegions(req, res) {
     let { region, name} = req.body;
-    if(!req.params.country || !region || !name) return  res.status(400).send(ct.ERROR_NO_DATA);
-    try{
-        let result = await regionsCrud.createRegion(req.body, req.params.country);
-        responseErrorPost(result, res);
+    if(!req.params.country || !region || !name) return res.status(400).send(ct.ERROR_NO_DATA);
+    regionsCrud.createRegion(req.body, req.params.country).then((result)=>{
         let response = {
             result: result,
             links: links(req,result)
         }
         res.status(201).send(response);
-    }catch(err){
-        res.status(500).send({error: err});
-    }
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    });
     
-});
+}
 
-routerRegions.delete("/:country/:region", async (req, res) => {
+async function deleteRegions(req, res){
     if(!req.params.country || ! req.params.region) return  res.status(400).send(ct.ERROR_NO_DATA);
     regionsCrud.deleteRegion(req.params.country, req.params.region).then((result)=>{
         let response = {    
@@ -55,22 +57,21 @@ routerRegions.delete("/:country/:region", async (req, res) => {
     },(err)=>{
         res.status(500).send({error: err.message});
     });   
-});
+}
 
-routerRegions.put("/:country/:region", async (req, res) => {
-
-    if(!req.params.country || !req.params.region || !req.body.name) return  res.status(400).send(ct.ERROR_NO_DATA);
-    try{
-        let result = await regionsCrud.updateRegion(req.params.country, req.params.region, req.body.name);
+async function putRegions(req, res) {
+    if(!req.params.country || !req.params.region || !req.body.name) 
+        return res.status(400).send(ct.ERROR_NO_DATA);
+    regionsCrud.updateRegion(req.params.country, req.params.region, req.body.name).then((result)=>{
         let response = {
             result: result,
             links: links(req,result)
         }
         res.send(response);
-    }catch(err){
-        res.status(500).send({error: err});
-    }
-});
+    }).catch((err)=>{
+        res.status(500).send({error: err.message});
+    });
+}
 
 function links(req,result){
     // getThisRegion:`${req.protocol}://${req.hostname}/regions/${result.country || finded[0].country}/${result.region || finded[0].code}`,
@@ -83,4 +84,7 @@ function links(req,result){
     }
 }
 
-module.exports = routerRegions;
+module.exports = {
+    router :routerRegions,
+    consultRegionsGet: consultRegionsGet
+};
