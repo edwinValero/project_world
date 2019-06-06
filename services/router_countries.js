@@ -24,7 +24,7 @@ async function consultCountriesGet(req, res){
         };
         res.send(response);
     }).catch((err)=>{
-        logger.info(err);
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });  
 }
@@ -45,6 +45,7 @@ async function deleteCountries(req, res){
         }
         res.send(response);
     },(err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });   
 }
@@ -59,6 +60,7 @@ async function putCountries(req, res) {
         }
         res.send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });
 }

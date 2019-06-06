@@ -5,147 +5,115 @@ const ct = require('./constants');
 const cityCrud = require('./city_crud');
 //todo pendiente
 function consultSisters(code1, code2){
+    if(code2 && !code1)  throw new Error( ct.ERROR_NO_DATA);
+    return citiesExist([code1,code2]).then(exist=>{
+        if(!exist)  throw new Error('One or more cities do not exist');
+        return consult(code1, code2);
+    }).then(sisters=>{
+        let result = sisters;        
+        if(code1 && code2){
+            let index = getIndexOfSisters(sisters, code1, code2);
+            if(index != -1)  result = [sisters[index]];
+        }        
+        return result;
+    }).catch(err=>{
+        logger.error('Error in consultSisters the database layer: ', err);
+        throw new Error(err);
+    });  
+}
+
+function getIndexOfSisters(sisters, code1, code2){
+    let index = sisters.indexOf({city1:code1, city2:code2});
+    if(!index){
+        index = sisters.indexOf({city1:code2, city2:code1});
+    }
+    return index;
+}
+
+function consult(code1, code2){
     return connection().then((db)=>{
         db.query = promisify(db.query);
         let qr = `select * from world_project_db.sisters c`;
-         if(code ){
-            qr +=` where c.city1 = '${code1}' or c.city2 = '${code2}' `;
+         if(code1 && code2 ){
+            qr +=` where c.city1 = '${code1}' or c.city1 = '${code2}' `;
+        }else if(code1){
+            qr +=` where c.city1 = '${code1}' or c.city2 = '${code1}' `;
         }
         let result = db.query(qr);
         return result;
-    }).catch((err)=>{
-        logger.error('Error in consultSisters the database layer: ', err);
-        throw new Error(err);
     });     
 }
 
+async function citiesExist(cities){
+    cities= cities.reduce((acum, val)=>{
+        if(val){
+            acum.push(val);
+        }
+        return acum;
+    },[]);
+    return cityCrud.consultSeveralCities(cities).then(result=>{            
+        return result.length === cities.length;
+    });
+}
+
 async function createSister(code1, code2){
-    if(!country || !sister || !name)  throw new Error( ct.ERROR_NO_DATA);
+    if(!code1 || !code2)  throw new Error( ct.ERROR_NO_DATA);
+    return consultSisters(code1, code2).then(exist =>{
+        if(exist.length > 0) throw 'The cities are already sisters';
+        return create(code1,code2);
+    }).then((result)=>{
+        return {
+            message : 'Sister cities created in the database',
+            data:{city1:code1, city2: code2},
+            result:result
+        };
+    }).catch(err=>{
+        if(typeof err === 'string') return err;
+        logger.error('Error in createSister the database layer: ', err);
+        throw new Error(err);
+    });
+   
+}
+
+function create(code1, code2){
     return connection().then((db)=>{
         let qr = `INSERT INTO  world_project_db.sisters SET ? `;
-        let post = {country: country, code:sister, name: name};
+        let post = {city1: code1, city2:code2};
         db.query = promisify(db.query);
         return db.query(qr,post);
-    }).catch((err)=>{
-        logger.error('Error in createSister the database layer: ', err);
-        throw  new Error(err);
     });    
 }
 
-function deleteSister(country, code){
+function deleteSister(code1, code2){
+    if(!code1 || !code2)  throw new Error( ct.ERROR_NO_DATA);
+    return consultSisters(code1, code2).then(sisters=>{
+        if(sisters.length === 0) throw 'Relationship of the cities does not exist';
+        return deleteRelationship(sisters[0].city1,sisters[0].city2);
+    }).then(result=>{
+        return {
+            message : 'Relationship of cities was deleted',
+            data:{city1:code1, city2: code2},
+            result:result
+        };
+    }).catch(err=>{
+        if(typeof err === 'string') return err;
+        logger.error('Error in  deleteSister the database layer: ', err);
+        throw new Error(err); 
+    })
+}
+
+function deleteRelationship(code1, code2){
     return connection().then((db)=>{
-        let qr =`DELETE FROM world_project_db.sisters where country = '${country}' and code = '${code}'`;
+        let qr =`DELETE FROM world_project_db.sisters where city1 = '${code1}' and city2 = '${code2}'`;
         db.query = promisify(db.query);
         let result = db.query(qr);
         return result;        
-    }).catch((err)=>{
-        logger.error('Error in  deleteSister the database layer: ', err);
-        throw new Error(err); 
     });
-}
-
-async function updateSister(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    return consultSisters(code, country).then((sisters)=>{
-        if(sisters.length){
-            return update(country, code, name);
-        }else{
-            return createSister({sister: code, name: name }, country);
-        }
-    }).catch((err)=>{
-        logger.error('Error in updateSister the database layer: ', err);
-        throw new Error(err);
-    });
-}
-
-async function update(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    connection().then((db)=>{
-        let qr = `UPDATE world_project_db.sisters SET name = '${name}' 
-        Where country= '${country}' and code = '${code}'`;
-        db.query = promisify(db.query);
-        let results = db.query(qr);
-        return results;
-    }).catch((err)=>{
-        logger.error('Error in update the database layer: ', err);
-        throw new Error(err);
-    });
-}
-
-async function haveCities(country, code){
-    try{
-        let result = await cityCrud.consultCities(undefined, code, country);
-        return result.length > 0;
-    }catch(err){
-        return false;
-    }
-}
-
-
-
-async function deleteSister2(country, code){
-    if(!country || !code ) throw new Error(ct.ERROR_NO_DATA);
-    //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
-    try{
-        let exist= await consultSisters(code, country);
-        if(exist.length === 0){
-            throw new Error('The sister does not exist!'); 
-        }
-        if( await haveCities(country, code)){
-            throw new Error('The selected sister has associated cities and can not be deleted!'); 
-        }
-        let qr =`DELETE FROM world_project_db.sisters where country = '${country}' and code = '${code}'`;
-        let db = await connection();
-        db.query = promisify(db.query);
-        let result = await db.query(qr);
-        db.end();
-        logger.info('deleted ' + result.affectedRows + ' rows');
-        return result;        
-    }catch(err){
-        logger.error('Error in  deleteSister the database layer: ', err);
-        throw new Error(err); 
-    }
-}
-
-
-
-async function updateSister2(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    try{
-        let sister = await consultSisters(country, code);
-        if(sister.length){
-            return await update2(country, code, name);
-        }else{
-            return await createSister({sister: code, name: name }, req.params.country);
-        }
-    }catch(err){
-        logger.error('Error in updateSister the database layer: ', err);
-        throw err;
-    }
-}
-
-async function update2(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    let db = await connection();
-    //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
-    try{        
-        let qr = `UPDATE world_project_db.sisters SET name = '${name}' 
-        Where country= '${country}' and code = '${code}'`;
-        db.query = promisify(db.query);
-        let results = await db.query(qr);
-        logger.info('changed ' + results.changedRows + ' rows');
-        db.end();
-        return results;
-    }catch(err){
-        db.end();
-        logger.error('Error in update the database layer: ', err);
-        throw err;
-    }
 }
 
 module.exports= {
     consultSisters: consultSisters,
+    consultSister: consult,
     createSister: createSister,
-    deleteSister: deleteSister,
-    updateSister: updateSister
+    deleteSister: deleteSister
 }

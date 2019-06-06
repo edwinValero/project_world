@@ -26,26 +26,58 @@ function consultRegions(code, country){
 async function createRegion(data, country){
     let { region, name} = data;
     if(!country || !region || !name)  throw new Error( ct.ERROR_NO_DATA);
+    return consultRegions( region, country).then(regions=>{
+        if(regions.length > 0) throw 'The region already exists';
+        return create(country, region, name);
+    }).then(result=>{
+        return { 
+            message:'Region was created',
+            data: { region: region, name: name, country: country} ,
+            sql:result
+        };
+    }).catch((err)=>{
+        if(typeof err === 'string') return err;
+        logger.error('Error in createRegion the database layer: ', err);
+        throw  new Error(err);
+    });
+}
+
+function create(country, region, name){
     return connection().then((db)=>{
         let qr = `INSERT INTO  world_project_db.regions SET ? `;
         let post = {country: country, code:region, name: name};
         db.query = promisify(db.query);
         return db.query(qr,post);
-    }).catch((err)=>{
-        logger.error('Error in createRegion the database layer: ', err);
-        throw  new Error(err);
-    });    
+    });  
 }
 
 function deleteRegion(country, code){
+    if(!country || !code )  throw new Error( ct.ERROR_NO_DATA);
+    return consultRegions( code, country).then(regions=>{
+        if(regions.length === 0) throw 'The region does not exist';
+        return cityCrud.consultCities(undefined, code, country);
+    }).then(cities=>{
+        if(cities.length > 0) throw 'The region has associated cities, it can not be deleted.';
+        return deleteR(country, code);
+    }).then(result=>{
+        return { 
+            message:'The region was deleted',
+            data: {country: country, region: code},
+            sql:result
+        };
+    }).catch((err)=>{
+        if(typeof err === 'string') return err;
+        logger.error('Error in deleteRegion the database layer: ', err);
+        throw  new Error(err);
+    }); 
+}
+
+function deleteR(country, code){
     return connection().then((db)=>{
         let qr =`DELETE FROM world_project_db.regions where country = '${country}' and code = '${code}'`;
         db.query = promisify(db.query);
         let result = db.query(qr);
         return result;        
-    }).catch((err)=>{
-        logger.error('Error in  deleteRegion the database layer: ', err);
-        throw new Error(err); 
     });
 }
 
@@ -55,8 +87,14 @@ async function updateRegion(country, code, name){
         if(regions.length){
             return update(country, code, name);
         }else{
-            return createRegion({region: code, name: name }, country);
+            return create(country ,code, name);
         }
+    }).then(result=>{
+        return { 
+            message:'The region was updated',
+            data: {country: country, region: code, name: name},
+            sql:result
+        }; 
     }).catch((err)=>{
         logger.error('Error in updateRegion the database layer: ', err);
         throw new Error(err);
@@ -64,88 +102,13 @@ async function updateRegion(country, code, name){
 }
 
 async function update(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    connection().then((db)=>{
+    return connection().then((db)=>{
         let qr = `UPDATE world_project_db.regions SET name = '${name}' 
         Where country= '${country}' and code = '${code}'`;
         db.query = promisify(db.query);
         let results = db.query(qr);
         return results;
-    }).catch((err)=>{
-        logger.error('Error in update the database layer: ', err);
-        throw new Error(err);
     });
-}
-
-async function haveCities(country, code){
-    try{
-        let result = await cityCrud.consultCities(undefined, code, country);
-        return result.length > 0;
-    }catch(err){
-        return false;
-    }
-}
-
-
-
-async function deleteRegion2(country, code){
-    if(!country || !code ) throw new Error(ct.ERROR_NO_DATA);
-    //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
-    try{
-        let exist= await consultRegions(code, country);
-        if(exist.length === 0){
-            throw new Error('The region does not exist!'); 
-        }
-        if( await haveCities(country, code)){
-            throw new Error('The selected region has associated cities and can not be deleted!'); 
-        }
-        let qr =`DELETE FROM world_project_db.regions where country = '${country}' and code = '${code}'`;
-        let db = await connection();
-        db.query = promisify(db.query);
-        let result = await db.query(qr);
-        db.end();
-        logger.info('deleted ' + result.affectedRows + ' rows');
-        return result;        
-    }catch(err){
-        logger.error('Error in  deleteRegion the database layer: ', err);
-        throw new Error(err); 
-    }
-}
-
-
-
-async function updateRegion2(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    try{
-        let region = await consultRegions(country, code);
-        if(region.length){
-            return await update2(country, code, name);
-        }else{
-            return await createRegion({region: code, name: name }, req.params.country);
-        }
-    }catch(err){
-        logger.error('Error in updateRegion the database layer: ', err);
-        throw err;
-    }
-}
-
-async function update2(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
-    let db = await connection();
-    //if(db.state === 'disconnected') throw new Error( ct.ERROR_CONNECTION);   
-    try{        
-        let qr = `UPDATE world_project_db.regions SET name = '${name}' 
-        Where country= '${country}' and code = '${code}'`;
-        db.query = promisify(db.query);
-        let results = await db.query(qr);
-        logger.info('changed ' + results.changedRows + ' rows');
-        db.end();
-        return results;
-    }catch(err){
-        db.end();
-        logger.error('Error in update the database layer: ', err);
-        throw err;
-    }
 }
 
 module.exports= {

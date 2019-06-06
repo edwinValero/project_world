@@ -14,13 +14,14 @@ async function consultCities(req, res){
     let {country, region} = req.body;   
     if(!country && !region && !req.params.city) return  res.status(400).send(ct.ERROR_NO_DATA);
 
-    citiesCrud.consultCities(req.params.city, region, country).then((cities)=>{
+    citiesCrud.consultCitiesAndSisters(req.params.city, region, country).then((cities)=>{
         let response = {
             result: cities,
             links: getLinks(req)
         };
         res.send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });
     
@@ -38,6 +39,7 @@ async function  deleteCities(req, res){
         };
         res.send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });    
    
@@ -54,6 +56,7 @@ async function postCities(req, res) {
         }
         res.status(201).send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });    
 }
@@ -70,6 +73,7 @@ async function putCities(req, res){
         }
         res.send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     }); 
 }

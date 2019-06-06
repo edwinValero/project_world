@@ -1,25 +1,31 @@
 jest.mock('../data_base/region_crud');
-
+let crud, {consultRegions} = require('../data_base/region_crud');
+const mockRes = require('node-mocks-http');
 const router = require('../services/router_regions');
 
 describe('test of consultRegionsGet ', ()=>{
-    let res, req;
-
+    let mockResponse, req;
     beforeEach(() => {
+        consultRegions.mockReturnValue(Promise.resolve({ 
+            code: '1234',
+            country: 'CO',
+            name : 'testMockConsult'
+        }));
         req = { params:{ country:'CO', region :1} };
-        res = {
-            result : '',
-            send: (response)=>{ this.result = response;} 
-        };
+        mockResponse = new mockRes.createResponse();
+
+    });
+
+    afterEach(()=>{
+        mockResponse.statusCode = '';
     });
 
     it('consultRegionsGet ', async ()=>{
-        return router.consultRegionsGet(req,res).then(result =>{
-            console.log('Entro');
-            expect(res.result).toBe('testMockConsult');
+        return router.consultRegionsGet(req,mockResponse).then(() =>{
+            console.log(mockResponse.Body);
+            expect(mockResponse.statusCode).toBe(200);
         }).catch(err=>{
-            console.log('error!!!!', err);
-            throw new Error('I have failed you, Anakin');
+            throw new Error(err);
         });
     });
 

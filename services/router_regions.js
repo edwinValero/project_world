@@ -17,15 +17,14 @@ async function consultRegionsGet(req, res){
     let {country, region} = req.params;
     if(!country) country = req.query.country; 
     if(!region) region = req.query.region;
-    let result = regionsCrud.consultRegions(region, country);
-    result.then((regions)=>{
+    regionsCrud.consultRegions(region, country).then((regions)=>{
         let response = {
             result: regions,
             links: links(req,regions)
         };
         res.send(response);
     }).catch((err)=>{
-        logger.info(err);
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });  
 }
@@ -41,6 +40,7 @@ async function postRegions(req, res) {
         }
         res.status(201).send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });
     
@@ -55,6 +55,7 @@ async function deleteRegions(req, res){
         }
         res.send(response);
     },(err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });   
 }
@@ -69,6 +70,7 @@ async function putRegions(req, res) {
         }
         res.send(response);
     }).catch((err)=>{
+        if(typeof err === 'string')  res.status(400).send({problem: err});
         res.status(500).send({error: err.message});
     });
 }
