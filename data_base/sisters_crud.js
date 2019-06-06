@@ -5,9 +5,9 @@ const ct = require('./constants');
 const cityCrud = require('./city_crud');
 //todo pendiente
 function consultSisters(code1, code2){
-    if(code2 && !code1)  throw new Error( ct.ERROR_NO_DATA);
+    if(code2 && !code1)  throw  ct.ERROR_NO_DATA;
     return citiesExist([code1,code2]).then(exist=>{
-        if(!exist)  throw new Error('One or more cities do not exist');
+        if(!exist)  throw 'One or more cities do not exist';
         return consult(code1, code2);
     }).then(sisters=>{
         let result = sisters;        
@@ -17,6 +17,7 @@ function consultSisters(code1, code2){
         }        
         return result;
     }).catch(err=>{
+        if(typeof err === 'string') return err;
         logger.error('Error in consultSisters the database layer: ', err);
         throw new Error(err);
     });  
