@@ -1,6 +1,6 @@
 const connection = require('./connection.js');
 const {promisify} = require('util');
-//const logger = require('../services/logger');
+const logger = require('../services/logger');
 const cts = require('./constants.js');
 
 function getFilters(city,region,country){
@@ -19,7 +19,7 @@ function getFilters(city,region,country){
 }
 function consultSistersCities(code1){
     return connection().then((db)=>{
-        db.query = promisify(db.query);
+        db.query = promisify(db.query);        
         let qr = `select * from world_project_db.sisters c`;
         if(code1){
             qr +=` where c.city1 = '${code1}' or c.city2 = '${code1}' `;
@@ -31,15 +31,15 @@ function consultSistersCities(code1){
 
 function consultCitiesAndSisters(city,region,country){
     return consultCities(city,region,country).then(cities=>{
-        const citiesPromises = cities.map(async (value)=>{
+        const sistersPromises = cities.map(async (value)=>{
             return consultSistersCities(value.code);
         });
-        return Promise.all(citiesPromises).then(sisters=>{
+        return Promise.all(sistersPromises).then(sisters=>{
             return joinCitiesAndSisters(cities, sisters);
         })
     }).catch(err=>{
-        console.log(err);
-        //logger.error('Error in consultCitiesAndSisters the database layer: ', err);
+        if(typeof err === 'string') return err;
+        logger.error('Error in consultCitiesAndSisters the database layer: ', err);
         throw new Error(err);  
     })
 }
@@ -62,13 +62,11 @@ async function consultCities(city,region,country){
         db.query = promisify(db.query);
         let qr = `select * from world_project_db.cities c`;
         let filter = getFilters(city,region,country);
-        if(filter === ' where ') throw new Error( cts.ERROR_NO_DATA); 
+        if(filter === ' where ') throw cts.ERROR_NO_DATA; 
         let result = db.query(qr+filter);  
         return result;
     });
 }
-
-
 
 async function consultSeveralCities(cities){
     return connection().then((db)=>{
@@ -92,7 +90,7 @@ async function createCity(data){
         longitude:data.longitude,
         population:data.population
     }
-    if(!qrData.country || !qrData.region || !qrData.code)  throw new Error(cts.ERROR_NO_DATA);
+    if(!qrData.country || !qrData.region || !qrData.code)  throw cts.ERROR_NO_DATA;
     return consultCities(qrData.code).then(cities=>{
         if(cities.length > 0) throw 'The city already exists';
         return create(qrData);
@@ -119,7 +117,7 @@ function create(data){
 }
 
 async function deleteCity(city, region, country){
-    if(!city && !region && !country )  throw new Error( cts.ERROR_NO_DATA);
+    if(!city && !region && !country )  throw cts.ERROR_NO_DATA;
     return consultCitiesAndSisters(city, region, country).then(exits=>{
         if(exits.length === 0) throw 'The city does not exist';
         if(exits.some(value=> value.sisters.length)) throw 'The city has associated sisters and can not be erased'; 
@@ -137,7 +135,7 @@ async function deleteCity(city, region, country){
     }).catch((err)=>{
         if(typeof err === 'string') return err;
         logger.error('Error in  deleteCity the database layer: ', err);
-        return new Error(err);
+        throw new Error(err);
     });
 }
 
@@ -147,7 +145,7 @@ function deleteC(city, region, country){
         let qr =`DELETE FROM world_project_db.cities c `;
         let filter =getFilters(city,region,country);
 
-        if(filter === ' where ') throw new Error( cts.ERROR_NO_DATA);         
+        if(filter === ' where ') throw cts.ERROR_NO_DATA;         
         result =  db.query(qr+filter);
         return result;
     });
@@ -163,7 +161,7 @@ async function updateCity(data){
         longitude:data.longitude,
         population:data.population
     }
-    if(!data.code)  throw new Error( cts.ERROR_NO_DATA);
+    if(!data.code)  throw cts.ERROR_NO_DATA;
     return consultCities(data.city,data.region,data.country).then((cities)=>{
         if(cities.length){
             return update(qrData);
@@ -177,6 +175,7 @@ async function updateCity(data){
             sql:result
         };
     }).catch((err)=>{
+        if(typeof err === 'string') return err;
         logger.error('Error in updateCity the database layer: ', err);
         throw new Error(err);
     });
@@ -184,7 +183,7 @@ async function updateCity(data){
 
 async function update(data){
     let { name , latitude ,  longitude , population,country ,region} = data
-    if(!data.code )  throw new Error( cts.ERROR_NO_DATA);
+    if(!data.code )  throw cts.ERROR_NO_DATA;
     return connection().then((db)=>{
         let qr = `UPDATE world_project_db.cities SET 
         name = ?, 
@@ -197,9 +196,6 @@ async function update(data){
         db.query = promisify(db.query);
         let results = db.query(qr,[ name , latitude ,  longitude , population,country ,region]);
         return results;
-    }).catch((err)=>{
-        logger.error('Error in update the database layer: ', err);
-        return new Error(err);
     });  
 }
 

@@ -21,7 +21,7 @@ function consultCountries(code){
 
 async function createCountry(data, country){
     let {name} = data;
-    if(!country || !name)  throw new Error( ct.ERROR_NO_DATA);
+    if(!country || !name)  throw ct.ERROR_NO_DATA;
     return consultCountries(country).then(countries=>{
         if(countries.length > 0) throw 'The country already exists';
         return create( country, name);
@@ -77,7 +77,7 @@ function deleteC(code){
 }
 
 async function updateCountry( code, name){
-    if( !code || !name)  throw new Error( ct.ERROR_NO_DATA);
+    if( !code || !name)  throw ct.ERROR_NO_DATA;
     return consultCountries(code).then((countries)=>{
         if(countries.length){
             return update(code, name);
