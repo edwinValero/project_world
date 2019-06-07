@@ -1,6 +1,6 @@
 const connection = require('./connection.js');
 const {promisify} = require('util');
-const logger = require('../services/logger');
+//const logger = require('../services/logger');
 const cts = require('./constants.js');
 
 function getFilters(city,region,country){
@@ -38,7 +38,8 @@ function consultCitiesAndSisters(city,region,country){
             return joinCitiesAndSisters(cities, sisters);
         })
     }).catch(err=>{
-        logger.error('Error in consultCitiesAndSisters the database layer: ', err);
+        console.log(err);
+        //logger.error('Error in consultCitiesAndSisters the database layer: ', err);
         throw new Error(err);  
     })
 }

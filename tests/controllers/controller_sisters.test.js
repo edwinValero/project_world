@@ -1,7 +1,7 @@
-jest.mock('../data_base/sisters_crud');
-let crud = require('../data_base/sisters_crud');
+jest.mock('../../data_base/sisters_crud');
+let crud = require('../../data_base/sisters_crud');
 const mockRes = require('node-mocks-http');
-const controller = require('../controllers/controller_sisters');
+const controller = require('../../controllers/controller_sisters');
 
 describe('test of consultSistersGet ', ()=>{
     let mockResponse, req;

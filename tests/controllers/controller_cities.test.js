@@ -1,7 +1,7 @@
-jest.mock('../data_base/city_crud');
-let crud = require('../data_base/city_crud');
+jest.mock('../../data_base/city_crud');
+let crud = require('../../data_base/city_crud');
 const mockRes = require('node-mocks-http');
-const controller = require('../controllers/controller_cities');
+const controller = require('../../controllers/controller_cities');
 
 describe('test of consultCities ', ()=>{
     let mockResponse, req;

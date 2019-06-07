@@ -1,7 +1,7 @@
-jest.mock('../data_base/region_crud');
-let crud = require('../data_base/region_crud');
+jest.mock('../../data_base/region_crud');
+let crud = require('../../data_base/region_crud');
 const mockRes = require('node-mocks-http');
-const controller = require('../controllers/controller_regions');
+const controller = require('../../controllers/controller_regions');
 
 describe('test of consultRegionsGet ', ()=>{
     let mockResponse, req;
