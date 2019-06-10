@@ -61,7 +61,7 @@ function deleteCountry(country){
             sql:result
         };
     }).catch(err=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in createCountry the database layer: ', err);
         throw  new Error(err);
     });    

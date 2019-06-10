@@ -17,7 +17,7 @@ function consultSisters(code1, code2){
         }        
         return result;
     }).catch(err=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in consultSisters the database layer: ', err);
         throw new Error(err);
     });  
@@ -53,12 +53,12 @@ async function citiesExist(cities){
         return acum;
     },[]);
     return cityCrud.consultSeveralCities(cities).then(result=>{            
-        return result.length === cities.length;
+        return result.length >= cities.length;
     });
 }
 
 async function createSister(code1, code2){
-    if(!code1 || !code2)  throw new Error( ct.ERROR_NO_DATA);
+    if(!code1 || !code2)  throw ct.ERROR_NO_DATA;
     return consultSisters(code1, code2).then(exist =>{
         if(exist.length > 0) throw 'The cities are already sisters';
         return create(code1,code2);
@@ -69,7 +69,7 @@ async function createSister(code1, code2){
             result:result
         };
     }).catch(err=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in createSister the database layer: ', err);
         throw new Error(err);
     });
@@ -85,14 +85,14 @@ function create(code1, code2){
     });    
 }
 
-function deleteSister(code1, code2){
-    if(!code1 || !code2)  throw new Error( ct.ERROR_NO_DATA);
+async function deleteSister(code1, code2){
+    if(!code1 || !code2)  throw  ct.ERROR_NO_DATA;
     return consultSisters(code1, code2).then(sisters=>{
-        if(sisters.length === 0) throw 'Relationship of the cities does not exist';
+        if(sisters.length === 0) throw 'Cities relationship does not exist';
         return deleteRelationship(sisters[0].city1,sisters[0].city2);
     }).then(result=>{
         return {
-            message : 'Relationship of cities was deleted',
+            message : 'Cities relationship was deleted',
             data:{city1:code1, city2: code2},
             result:result
         };

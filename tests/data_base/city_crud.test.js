@@ -15,7 +15,7 @@ describe('test of consultCitiesAndSisters ', ()=>{
         connection.mockReturnValue(Promise.resolve({query:()=>8}));
     });
 
-    it('tets consultCitiesAndSisters  when query returns', async ()=>{
+    it('test consultCitiesAndSisters  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_SISTERS) ) return Promise.resolve([{city1:2, city2:3}]);
@@ -29,7 +29,7 @@ describe('test of consultCitiesAndSisters ', ()=>{
         });
     });
 
-    it('tets consultCitiesAndSisters  when throw something', async ()=>{
+    it('test consultCitiesAndSisters  when throw something', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve({code:2});
             if(value.includes(QR_SISTERS) ) return Promise.resolve([{city1:2, city2:3}]);
@@ -41,7 +41,7 @@ describe('test of consultCitiesAndSisters ', ()=>{
         });
     });
 
-    it('tets consultCitiesAndSisters  when not parameters', async ()=>{
+    it('test consultCitiesAndSisters  when not parameters', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_SISTERS) ) return Promise.resolve([{city1:2, city2:3}]);
@@ -60,7 +60,7 @@ describe('test of consultSeveralCities ', ()=>{
         connection.mockReturnValue(Promise.resolve({query:()=>8}));
     });
 
-    it('tets consultSeveralCities  when query returns', async ()=>{
+    it('test consultSeveralCities  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
         });
@@ -73,7 +73,7 @@ describe('test of consultSeveralCities ', ()=>{
         });
     });
 
-    it('tets consultSeveralCities  when throw something', async ()=>{
+    it('test consultSeveralCities  when throw something', async ()=>{
         promisify.mockReturnValue((value)=>{    
             throw new Error('Error with promisify');
         });
@@ -99,7 +99,7 @@ describe('test of createCity ', ()=>{
             population:1
         }    
     });
-    it('tets createCity  when query returns', async ()=>{
+    it('test createCity  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_CITY_INSERT) ) return  Promise.resolve({result:1});
@@ -113,20 +113,20 @@ describe('test of createCity ', ()=>{
         });
     });
 
-    it('tets createCity  when city exist', async ()=>{
+    it('test createCity  when city exist', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_INSERT) ) return  Promise.resolve({result:1});
         });
         return crud.createCity(qrData).then(result =>{
-            expect(result).toBe('The city already exists');
+            console.log(result);             
+            throw new Error(result);
         }).catch(err=>{
-           console.log(err);             
-           throw new Error(err);
+            expect(err).toBe('The city already exists');
         });
     });
 
-    it('tets createCity  when data is wrong', async ()=>{
+    it('test createCity  when data is wrong', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_INSERT) ) return  Promise.resolve({result:1});
@@ -139,7 +139,7 @@ describe('test of createCity ', ()=>{
         });
     });
 
-    it('tets createCity  when throw some thing', async ()=>{
+    it('test createCity  when throw some thing', async ()=>{
         promisify.mockReturnValue((value)=>{    
             throw new Error('Error with promisify');
         });
@@ -155,7 +155,7 @@ describe('test of deleteCity ', ()=>{
     beforeEach(() => {        
         connection.mockReturnValue(Promise.resolve({query:()=>8}));
     });
-    it('tets deleteCity  when query returns', async ()=>{
+    it('test deleteCity  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_DELETE) ) return  Promise.resolve({result:1});
@@ -170,7 +170,7 @@ describe('test of deleteCity ', ()=>{
         });
     });
 
-    it('tets deleteCity  when city not exist', async ()=>{
+    it('test deleteCity  when city not exist', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_CITY_DELETE) ) return  Promise.resolve({result:1});
@@ -178,14 +178,15 @@ describe('test of deleteCity ', ()=>{
 
         });
         return crud.deleteCity(1,1,1).then(result =>{
-            expect(result).toBe('The city does not exist');
+           console.log(result);             
+           throw new Error(result);
         }).catch(err=>{
-           console.log(err);             
-           throw new Error(err);
+            expect(err).toBe('The city does not exist');
+
         });
     });
 
-    it('tets deleteCity  when city has sisters', async ()=>{
+    it('test deleteCity  when city has sisters', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_DELETE) ) return  Promise.resolve({result:1});
@@ -193,14 +194,14 @@ describe('test of deleteCity ', ()=>{
         });
 
         return crud.deleteCity(1,1,1).then(result =>{
-            expect(result).toBe('The city has associated sisters and can not be erased');
+            console.log(result);             
+            throw new Error(result);
         }).catch(err=>{
-           console.log(err);             
-           throw new Error(err);
+            expect(err).toBe('The city has associated sisters and can not be erased');    
         });
     });
 
-    it('tets deleteCity  when params are wrong', async ()=>{
+    it('test deleteCity  when params are wrong', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_DELETE) ) return  Promise.resolve({result:1});
@@ -213,7 +214,7 @@ describe('test of deleteCity ', ()=>{
         });
     });
 
-    it('tets deleteCity  when throw some thing', async ()=>{
+    it('test deleteCity  when throw some thing', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_SISTERS) ) return Promise.resolve([]);
@@ -242,7 +243,7 @@ describe('test of updateCity ', ()=>{
             population:1
         }    
     });
-    it('tets updateCity  when update and query returns', async ()=>{
+    it('test updateCity  when update and query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_UPDATE) ) return  Promise.resolve({result:1});
@@ -256,7 +257,7 @@ describe('test of updateCity ', ()=>{
         });
     });
 
-    it('tets updateCity  when create and query returns', async ()=>{
+    it('test updateCity  when create and query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_CITY_UPDATE) ) return  Promise.resolve({result:1});
@@ -271,7 +272,7 @@ describe('test of updateCity ', ()=>{
         });
     });
 
-    it('tets updateCity  when data is wrong', async ()=>{
+    it('test updateCity  when data is wrong', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_CITY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_CITY_INSERT) ) return  Promise.resolve({result:1});
@@ -284,7 +285,7 @@ describe('test of updateCity ', ()=>{
         });
     });
 
-    it('tets updateCity  when throw some thing', async ()=>{
+    it('test updateCity  when throw some thing', async ()=>{
         promisify.mockReturnValue((value)=>{    
             throw new Error('Error with promisify');
         });

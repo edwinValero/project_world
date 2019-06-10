@@ -9,14 +9,14 @@ const region_crud = require('../../data_base/region_crud');
 const QR_COUNTRY_SELECT = `select * from world_project_db.countries`;
 const QR_COUNTRY_INSERT = `INSERT INTO  world_project_db.countries`;
 const QR_COUNTRY_DELETE = `DELETE FROM world_project_db.countries`;
-const QR_COUNTRY_UPDATE = `UPDATE world_project_db.cities`;
+const QR_COUNTRY_UPDATE = `UPDATE world_project_db.countries`;
 
 describe('test of consultCountries ', ()=>{
     beforeEach(() => {        
         connection.mockReturnValue(Promise.resolve({query:()=>8}));
     });
 
-    it('tets consultCountries  when query returns', async ()=>{
+    it('test consultCountries  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
         });
@@ -29,7 +29,7 @@ describe('test of consultCountries ', ()=>{
         });
     });
 
-    it('tets consultCountries  when query returns without params', async ()=>{
+    it('test consultCountries  when query returns without params', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
         });
@@ -42,7 +42,7 @@ describe('test of consultCountries ', ()=>{
         });
     });
 
-    it('tets consultCountries  when throw something', async ()=>{
+    it('test consultCountries  when throw something', async ()=>{
         promisify.mockReturnValue((value)=>{    
             throw new Error('Error with promisify');
         });
@@ -61,7 +61,7 @@ describe('test of createCountry ', ()=>{
         data = {name:'Name'};
     });
 
-    it('tets createCountry  when query returns', async ()=>{
+    it('test createCountry  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_COUNTRY_INSERT) ) return  Promise.resolve({result:1});
@@ -75,7 +75,7 @@ describe('test of createCountry ', ()=>{
         });
     });
 
-    it('tets createCountry  when params is wrong', async ()=>{
+    it('test createCountry  when params is wrong', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_COUNTRY_INSERT) ) return  Promise.resolve({result:1});
@@ -88,7 +88,7 @@ describe('test of createCountry ', ()=>{
         });
     });
 
-    it('tets consultCountries  when country exists', async ()=>{
+    it('test consultCountries  when country exists', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:1}]);
             if(value.includes(QR_COUNTRY_INSERT) ) return  Promise.resolve({result:1});
@@ -102,7 +102,7 @@ describe('test of createCountry ', ()=>{
         });
     });
 
-    it('tets consultCountries  when throw something', async ()=>{
+    it('test consultCountries  when throw something', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([]);
             throw new Error('Error with promisify');
@@ -120,7 +120,7 @@ describe('test of deleteCountry ', ()=>{
         connection.mockReturnValue(Promise.resolve({query:()=>8}));
     });
 
-    it('tets deleteCountry  when query returns', async ()=>{
+    it('test deleteCountry  when query returns', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_COUNTRY_DELETE) ) return  Promise.resolve({result:1});
@@ -135,7 +135,7 @@ describe('test of deleteCountry ', ()=>{
         });
     });
 
-    it('tets deleteCountry  when country does not exist', async ()=>{
+    it('test deleteCountry  when country does not exist', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([]);
             if(value.includes(QR_COUNTRY_DELETE) ) return  Promise.resolve({result:1});
@@ -143,14 +143,14 @@ describe('test of deleteCountry ', ()=>{
         region_crud.consultRegions = ()=>Promise.resolve([]);
 
         return crud.deleteCountry(1).then(result =>{
-            expect(result).toBe('The country does not exist');
+           console.log(result);             
+           throw new Error(result);
         }).catch(err=>{
-           console.log(err);             
-           throw new Error(err);
+            expect(err).toBe('The country does not exist');
         });
     });
 
-    it('tets deleteCountry  when country has regions', async ()=>{
+    it('test deleteCountry  when country has regions', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
             if(value.includes(QR_COUNTRY_DELETE) ) return  Promise.resolve({result:1});
@@ -158,14 +158,14 @@ describe('test of deleteCountry ', ()=>{
         region_crud.consultRegions = ()=>Promise.resolve([{country:2}]);
 
         return crud.deleteCountry(1).then(result =>{
-            expect(result).toBe('The country has associated regions, it can not be deleted.');
+           console.log(result);             
+           throw new Error(result);
         }).catch(err=>{
-           console.log(err);             
-           throw new Error(err);
+            expect(err).toBe('The country has associated regions, it can not be deleted.');
         });
     });
 
-    it('tets deleteCountry  when throw something', async ()=>{
+    it('test deleteCountry  when throw something', async ()=>{
         promisify.mockReturnValue((value)=>{    
             if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
             throw new Error('Error with promisify');
@@ -173,6 +173,70 @@ describe('test of deleteCountry ', ()=>{
         region_crud.consultRegions = ()=>Promise.resolve([]);
 
         return crud.deleteCountry(1).then(result =>{
+            throw new Error('Error no catch');
+        }).catch(err=>{
+           expect(err.message).toBe('Error: Error with promisify');
+        });
+    });
+});
+
+describe('test of updateCountry ', ()=>{
+    beforeEach(() => {        
+        connection.mockReturnValue(Promise.resolve({query:()=>8}));
+    });
+
+    it('test updateCountry  when query returns', async ()=>{
+        promisify.mockReturnValue((value)=>{    
+            if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
+            if(value.includes(QR_COUNTRY_UPDATE) ) return  Promise.resolve({result:1});
+        });
+        region_crud.consultRegions = ()=>Promise.resolve([]);
+
+        return crud.updateCountry(1,'name').then(result =>{
+            expect(result.message).toBe('Country was updated');
+        }).catch(err=>{
+           console.log(err);             
+           throw new Error(err);
+        });
+    });
+
+    it('test updateCountry  when country does not exist', async ()=>{
+        promisify.mockReturnValue((value)=>{    
+            if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([]);
+            if(value.includes(QR_COUNTRY_UPDATE) ) return  new Error('error');
+            if(value.includes(QR_COUNTRY_INSERT) ) return  Promise.resolve({result:1});
+        });
+        region_crud.consultRegions = ()=>Promise.resolve([]);
+
+        return crud.updateCountry(1,'name').then(result =>{
+            expect(result.message).toBe('Country was updated');
+        }).catch(err=>{
+           console.log(err);             
+           throw new Error(err);
+        });
+    });
+
+    it('test updateCountry  when params are wrong', async ()=>{
+        promisify.mockReturnValue((value)=>{    
+            throw new Error('Error with promisify');
+        });
+        region_crud.consultRegions = ()=>Promise.resolve([{country:2}]);
+
+        return crud.updateCountry(1).then(result =>{
+            throw new Error('Error no catch');
+        }).catch(err=>{
+            expect(err).toBe('Insufficient data');
+        });
+    });
+
+    it('test updateCountry  when throw something', async ()=>{
+        promisify.mockReturnValue((value)=>{    
+            if(value.includes(QR_COUNTRY_SELECT) ) return  Promise.resolve([{code:2}]);
+            throw new Error('Error with promisify');
+        });
+        region_crud.consultRegions = ()=>Promise.resolve([]);
+
+        return crud.updateCountry(1,'name').then(result =>{
             throw new Error('Error no catch');
         }).catch(err=>{
            expect(err.message).toBe('Error: Error with promisify');

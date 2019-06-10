@@ -101,7 +101,7 @@ async function createCity(data){
             sql:result
         };
     }).catch((err)=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in createCity the database layer: ', err);
         throw new Error(err);
     });
@@ -133,7 +133,7 @@ async function deleteCity(city, region, country){
             sql:result
         }
     }).catch((err)=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in  deleteCity the database layer: ', err);
         throw new Error(err);
     });
@@ -175,7 +175,7 @@ async function updateCity(data){
             sql:result
         };
     }).catch((err)=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in updateCity the database layer: ', err);
         throw new Error(err);
     });

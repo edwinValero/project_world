@@ -46,7 +46,7 @@ describe('test of consultCities ', ()=>{
         req = { params:{ city:23}, body: {region: 1, country:'CO'} };
 
         return controller.consultCities(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
         }).catch(err=>{
            console.log(err);             
            throw new Error(err);
@@ -108,7 +108,7 @@ describe('test of postCities ', ()=>{
         req = { params:{ city:12}, body: {country:'CO', region :1} };
 
         return controller.postCities(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -172,7 +172,7 @@ describe('test of deleteCities ', ()=>{
         req = { params:{city:12 }, body:{country:'CO',region :1}};
 
         return controller.deleteCities(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -236,7 +236,7 @@ describe('test of putCities ', ()=>{
         req = { params:{ city:12}, body: {country:'CO', region :1} };
 
         return controller.putCities(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);            

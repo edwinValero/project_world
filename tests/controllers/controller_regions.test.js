@@ -33,7 +33,7 @@ describe('test of consultRegionsGet ', ()=>{
         req = { query:{ country:'CO', region :1},params:{} };
 
         return controller.consultRegionsGet(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
         }).catch(err=>{
            console.log(err);             
            throw new Error(err);
@@ -97,7 +97,7 @@ describe('test of postRegions ', ()=>{
         req = { params:{ country:'CO'}, body: {name:'name', region :1} };
 
         return controller.postRegions(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -163,7 +163,7 @@ describe('test of deleteRegions ', ()=>{
         req = { params:{ country:'CO',region :1} };
 
         return controller.deleteRegions(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -227,7 +227,7 @@ describe('test of putRegions ', ()=>{
         req = { params:{ country:'CO',region :1}, body : {name:'name'} };
 
         return controller.putRegions(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);            

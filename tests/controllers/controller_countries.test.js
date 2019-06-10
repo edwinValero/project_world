@@ -33,7 +33,7 @@ describe('test of consultCountriesGet ', ()=>{
         req = { query:{ country:'CO'}, params:{}};
 
         return controller.consultCountriesGet(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
         }).catch(err=>{
            console.log(err);             
            throw new Error(err);
@@ -115,7 +115,7 @@ describe('test of deleteCountries ', ()=>{
         req = { params:{ country:'CO'} };
 
         return controller.deleteCountries(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -179,7 +179,7 @@ describe('test of putCountries ', ()=>{
         req = { params:{ country:'CO'}, body : {name:'name'} };
 
         return controller.putCountries(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);            

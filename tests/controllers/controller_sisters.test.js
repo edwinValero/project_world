@@ -30,7 +30,7 @@ describe('test of consultSistersGet ', ()=>{
         req = { params:{ city1:12, city2 :1} };
 
         return controller.consultSistersGet(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
         }).catch(err=>{
            console.log(err);             
            throw new Error(err);
@@ -78,7 +78,7 @@ describe('test of postSister ', ()=>{
         req = { params:{ city1:12, city2 :1} };
 
         return controller.postSister(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             
@@ -127,7 +127,7 @@ describe('test of deleteSister ', ()=>{
         req = { params:{ city1:12, city2 :1} };
 
         return controller.deleteSister(req,mockResponse).then(() =>{
-            expect(mockResponse.statusCode).toBe(400);
+            expect(mockResponse.statusCode).toBe(409);
             expect(mockResponse.body.problem).toBe( "Error text");
         }).catch(err=>{
            console.log(err);             

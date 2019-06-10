@@ -7,11 +7,11 @@ async function consultCountriesGet(req, res){
     return countriesCrud.consultCountries(country).then((countries)=>{
         let response = {
             result: countries,
-            links: links(req,countries)
+            links: links(req,{country: country})
         };
         res.status(200).send(response);
     }).catch((err)=>{
-        if(typeof err === 'string')  return res.status(400).send({problem: err});
+        if(typeof err === 'string')  return res.status(409).send({problem: err});
         res.status(500).send({error: err.message});
     });  
 }
@@ -24,14 +24,10 @@ async function postCountries(req, res) {
 async function deleteCountries(req, res){
     if(!req.params.country) return  res.status(400).send(ct.ERROR_NO_DATA);
 
-    return countriesCrud.deleteCountry(req.params.country).then((result)=>{
-        let response = {    
-            result: result,
-            links: links(req,result)
-        }
-        res.status(204).send(response);
-    },(err)=>{
-        if(typeof err === 'string') return res.status(400).send({problem: err});
+    return countriesCrud.deleteCountry(req.params.country).then(()=>{
+        res.status(204).send();
+    },err=>{
+        if(typeof err === 'string') return res.status(409).send({problem: err});
         res.status(500).send({error: err.message});
     });   
 }
@@ -42,23 +38,38 @@ async function putCountries(req, res) {
     return countriesCrud.updateCountry(req.params.country, req.body.name).then((result)=>{
         let response = {
             result: result,
-            links: links(req,result)
+            links: links(req,{country:req.params.country })
         }
         res.status(200).send(response);
     }).catch((err)=>{
-        if(typeof err === 'string') return res.status(400).send({problem: err});
+        if(typeof err === 'string') return res.status(409).send({problem: err});
         res.status(500).send({error: err.message});
     });
 }
 
-function links(req,result){
-    // getThisCountry:`${req.protocol}://${req.hostname}/countries/${result.country || finded[0].country}/${result.country || finded[0].code}`,
-    return {
-        getAllCountries: `${req.protocol}://${req.hostname}/countries`,
-        getCountryCountries:`${req.protocol}://${req.hostname}/countries/:country`,
-        putCountries:`${req.protocol}://${req.hostname}/countries/:country (body:{name})`,
-        deleteCountries:`${req.protocol}://${req.hostname}/countries/:country/`
+function links(req,data){
+    let country = data.country || ':country';
+    let root =`${req.protocol}://${req.hostname}:8080`;
+    let getCountry= `getCountry: ${root}/countries/${country} (body:{country: ${country}}`;
+    let getCountries= `getCountries: ${root}/countries `;
+    let putCountry= `putCountry: ${root}/countries/${country} (body:{ name})`;
+    let deleteCountry= `deleteCountry: ${root}/countries/${country}`;
+    let result=[];
+    switch(req.method){
+        case 'GET':
+            result.push(putCountry);
+            result.push(deleteCountry);
+            break;
+        case 'PUT':
+            result.push(getCountry);
+            result.push(getCountries);
+            result.push(deleteCountry);
+            break;
+        default:
+            result = undefined;
+            break;
     }
+    return result;
 }
 
 module.exports = {

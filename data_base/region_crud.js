@@ -25,7 +25,7 @@ function consultRegions(code, country){
 
 async function createRegion(data, country){
     let { region, name} = data;
-    if(!country || !region || !name)  throw new Error( ct.ERROR_NO_DATA);
+    if(!country || !region || !name)  throw  ct.ERROR_NO_DATA;
     return consultRegions( region, country).then(regions=>{
         if(regions.length > 0) throw 'The region already exists';
         return create(country, region, name);
@@ -36,7 +36,7 @@ async function createRegion(data, country){
             sql:result
         };
     }).catch((err)=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in createRegion the database layer: ', err);
         throw  new Error(err);
     });
@@ -51,8 +51,8 @@ function create(country, region, name){
     });  
 }
 
-function deleteRegion(country, code){
-    if(!country || !code )  throw new Error( ct.ERROR_NO_DATA);
+async function deleteRegion(country, code){
+    if(!country || !code )  throw  ct.ERROR_NO_DATA;
     return consultRegions( code, country).then(regions=>{
         if(regions.length === 0) throw 'The region does not exist';
         return cityCrud.consultCities(undefined, code, country);
@@ -66,7 +66,7 @@ function deleteRegion(country, code){
             sql:result
         };
     }).catch((err)=>{
-        if(typeof err === 'string') return err;
+        if(typeof err === 'string') throw err;
         logger.error('Error in deleteRegion the database layer: ', err);
         throw  new Error(err);
     }); 
@@ -82,7 +82,7 @@ function deleteR(country, code){
 }
 
 async function updateRegion(country, code, name){
-    if(!country || !code || !name)  throw new Error( ct.ERROR_NO_DATA);
+    if(!country || !code || !name)  throw  ct.ERROR_NO_DATA;
     return consultRegions(code, country).then((regions)=>{
         if(regions.length){
             return update(country, code, name);
