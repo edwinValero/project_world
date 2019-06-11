@@ -16,7 +16,7 @@ describe('test of consultCountriesGet ', ()=>{
             country: 'CO',
             name : 'testMockConsult'
         }));
-        req = { params:{ country:'CO'}};
+        req = { params:{ country:'CO'}, method:'GET'};
 
         return controller.consultCountriesGet(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(200);
@@ -149,7 +149,7 @@ describe('test of putCountries ', ()=>{
         crud.updateCountry.mockReturnValue(Promise.resolve({ 
             code: '1234'
         }));
-        req = { params:{ country:'CO'}, body : {name:'name'} };
+        req = { params:{ country:'CO'}, body : {name:'name'}, method:'PUT' };
 
         return controller.putCountries(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(200);

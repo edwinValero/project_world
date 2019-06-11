@@ -16,7 +16,7 @@ describe('test of consultRegionsGet ', ()=>{
             country: 'CO',
             name : 'testMockConsult'
         }));
-        req = { params:{ country:'CO', region :1}, query: {} };
+        req = { params:{ country:'CO', region :1}, query: {}, method:'GET' };
 
         return controller.consultRegionsGet(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(200);
@@ -65,7 +65,7 @@ describe('test of postRegions ', ()=>{
         crud.createRegion.mockReturnValue(Promise.resolve({ 
             code: '1234'
         }));
-        req = { params:{ country:'CO'}, body: {name:'name', region :1} };
+        req = { params:{ country:'CO'}, body: {name:'name', region :1}, method:'POST' };
 
         return controller.postRegions(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(201);
@@ -197,7 +197,7 @@ describe('test of putRegions ', ()=>{
         crud.updateRegion.mockReturnValue(Promise.resolve({ 
             code: '1234'
         }));
-        req = { params:{ country:'CO',region :1}, body : {name:'name'} };
+        req = { params:{ country:'CO',region :1}, body : {name:'name'}, method:'PUT' };
 
         return controller.putRegions(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(200);

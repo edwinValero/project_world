@@ -1,0 +1,511 @@
+{
+	"info": {
+		"_postman_id": "c1ef4115-df61-43e4-8248-515a08c6e527",
+		"name": "Proyecto final",
+		"description": "servicios para ensayar las diferentes funcionalidades del proyecto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/regions/CO",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/regions/CO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions",
+						"CO"
+					]
+				},
+				"description": "consulta de regiones con codigo de pais"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/regions/CO/03",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/regions/CO/CO.03",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions",
+						"CO",
+						"CO.03"
+					]
+				},
+				"description": "Consulta regiones por codigo de pais y codigo de region"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/regions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/regions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions"
+					]
+				},
+				"description": "todas las regiones"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/regions/CO",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"country\":\"CO\",\n\t\"region\":\"CO.9999\",\n\t\"name\":\"medallo metropolis\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/regions/CO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions",
+						"CO"
+					]
+				},
+				"description": "Post de creacion de region "
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/regions/CO/9999",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/regions/CO/CO.9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions",
+						"CO",
+						"CO.9999"
+					]
+				},
+				"description": "eliminar region prueba"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/regions/CO/9999",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\":\"MEDALLOso\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/regions/CO/CO.9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"regions",
+						"CO",
+						"CO.9999"
+					]
+				},
+				"description": "ACtualizar o crear dato"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/cities",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "country",
+						"value": "CO",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "region",
+						"value": "CO.03",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "region",
+							"value": "CO.03",
+							"type": "text"
+						},
+						{
+							"key": "country",
+							"value": "CO",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/cities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cities"
+					]
+				},
+				"description": "consulta ciudades por pais y region"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/cities/3665542",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/cities/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cities",
+						"9999"
+					]
+				},
+				"description": "Consulta ciudad por codigo"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/cities/9999",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"region\":\"CO.9999\",\n\t\"country\":\"CO\",\n\t\"name\":\"medallo\",\n\t\"latitude\":9999,\n\t\"longitude\":9999,\n\t\"population\":9999\n\t\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/cities/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cities",
+						"9999"
+					]
+				},
+				"description": "crear ciudad"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/9999",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"region\":\"CO.9999\",\n\t\"country\":\"CO\",\n\t\"name\":\"medallolo\",\n\t\"latitude\":\"9999\",\n\t\"longitude\":9999,\n\t\"population\":9999\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/cities/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cities",
+						"9999"
+					]
+				},
+				"description": "actualizar o crear ciudades"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/cities/9999",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/cities/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"cities",
+						"9999"
+					]
+				},
+				"description": "Borrar ciudad"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/countries/CO",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/countries/CO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"countries",
+						"CO"
+					]
+				},
+				"description": "Buscar pais especifico"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/countries",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/countries",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"countries"
+					]
+				},
+				"description": "Buscar todos los paises"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/countries/CO",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/countries/CO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"countries",
+						"CO"
+					]
+				},
+				"description": "Eliminar un pais"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/countries/CO",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\":\"Colombia\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/countries/CO",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"countries",
+						"CO"
+					]
+				},
+				"description": "Actualizar pais"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/sisters/9999",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/sisters/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sisters",
+						"9999"
+					]
+				},
+				"description": "consultar sisters de una ciudad"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/sisters/9999/3667478",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/sisters/9999/3667478",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sisters",
+						"9999",
+						"3667478"
+					]
+				},
+				"description": "consultar si dos ciudades son hermanas"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/sisters/9999/3667478",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/sisters/3667478/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sisters",
+						"3667478",
+						"9999"
+					]
+				},
+				"description": "Guardar un pareja de ciudades como sisters\n"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/sisters/3667478/9999",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/sisters/3667478/9999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sisters",
+						"3667478",
+						"9999"
+					]
+				},
+				"description": "se elimina relacion entre dos ciudades hermanas"
+			},
+			"response": []
+		}
+	]
+}

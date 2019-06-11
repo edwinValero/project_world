@@ -14,7 +14,7 @@ describe('test of consultSistersGet ', ()=>{
         crud.consultSisters.mockReturnValue(Promise.resolve({ 
             code: '1234'
         }));
-        req = { params:{ city1:12, city2 :1} };
+        req = { params:{ city1:12, city2 :1}, method:'GET' };
 
         return controller.consultSistersGet(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(200);
@@ -62,7 +62,7 @@ describe('test of postSister ', ()=>{
         crud.createSister.mockReturnValue(Promise.resolve({ 
             code: '1234'
         }));
-        req = { params:{ city1:12, city2 :1} };
+        req = { params:{ city1:12, city2 :1} , method:'POST'};
 
         return controller.postSister(req,mockResponse).then(() =>{
             expect(mockResponse.statusCode).toBe(201);
