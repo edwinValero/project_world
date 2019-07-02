@@ -1,6 +1,6 @@
 const citiesCrud = require('../data_base/city_crud.js');
 const ct = require('../data_base/constants');
-
+//un comentario
 async function consultCities(req, res){
     let {country, region} = req.body;   
     if(!country && !region && !req.params.city) return  res.status(400).send(ct.ERROR_NO_DATA);

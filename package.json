@@ -4,10 +4,11 @@
   "description": "projecto final de curso node.js",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js",
+    "dev": "nodemon ./scripts/app.js",
     "test": "jest",
     "test:coverage": "jest --collect-coverage --no-cache",
-    "start": "node app.js"
+    "start": "node ./scripts/app.js",
+    "gulp": "gulp"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,11 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify": "^3.1.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-uglify-es": "^1.0.4",
     "jest": "^24.8.0",
     "node-mocks-http": "^1.7.5"
   }

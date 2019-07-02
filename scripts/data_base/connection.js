@@ -1,9 +1,12 @@
 const mysql = require('mysql');
 const logger = require('../services/logger');
-require('dotenv').config();
+const  result = require('dotenv').config();
+
+if (result.error) {
+    throw result.error
+}
 
 const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME } = process.env;
-
 
 let db = async ()=>{
     try{

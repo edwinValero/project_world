@@ -1,7 +1,7 @@
-const connection = require('./connection.js');
+const connection = require('./connection');
 const {promisify} = require('util');
 const logger = require('../services/logger');
-const cts = require('./constants.js');
+const cts = require('./constants');
 
 function getFilters(city,region,country){
     let filters = [];
